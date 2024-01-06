@@ -11,7 +11,7 @@ import React, { useReducer } from 'react';
 
 import TButton from '@components/TButton';
 import FormItem from '@components/FormItem';
-import { useAuth } from '@lib/Auth';
+import { useAuth, GetUserName } from '@lib/Auth';
 
 import {
   TagProps,
@@ -90,6 +90,7 @@ const deleteTagsAction = (index: number): DeleteTagsAction => {
 
 const EachSellerGoods = () => {
   const token = useAuth();
+  const userName = GetUserName();
   const navigate = useNavigate();
 
   const params = useParams<{ goods_id?: string }>();
@@ -314,6 +315,10 @@ const EachSellerGoods = () => {
         return;
       }
 
+      if (userName === undefined) {
+        return;
+      }
+
       queryTag.mutate(tag, {
         onSuccess: async (responseData) => {
           const existingTag = responseData.find((currentTag) => currentTag.name === tag);
@@ -323,8 +328,7 @@ const EachSellerGoods = () => {
             updateTags();
             await connectTag.mutate({ id: goods_id, tag_id: existingTag.id });
           } else {
-            // TODO : seller name need to be change to corresponding user
-            addTag.mutate({ name: tag, seller_name: 'user1' });
+            addTag.mutate({ name: tag, seller_name: userName });
           }
 
           Reset();

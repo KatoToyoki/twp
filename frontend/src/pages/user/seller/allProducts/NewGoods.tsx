@@ -11,7 +11,7 @@ import React, { useReducer, CSSProperties } from 'react';
 
 import TButton from '@components/TButton';
 import FormItem from '@components/FormItem';
-import { useAuth } from '@lib/Auth';
+import { useAuth, GetUserName } from '@lib/Auth';
 
 export const GoodsImgStyle: CSSProperties = {
   borderRadius: '0 0 30px 0',
@@ -162,6 +162,7 @@ const deleteTagsAction = (index: number): DeleteTagsAction => {
 
 const EmptyGoods = () => {
   const token = useAuth();
+  const userName = GetUserName();
   const navigate = useNavigate();
 
   const [tag, setTag] = useState('');
@@ -269,6 +270,10 @@ const EmptyGoods = () => {
         return;
       }
 
+      if (userName === undefined) {
+        return;
+      }
+
       queryTag.mutate(tag, {
         onSuccess: (responseData) => {
           const existingTag = responseData.find((currentTag) => currentTag.name === tag);
@@ -277,8 +282,7 @@ const EmptyGoods = () => {
             dispatchTags({ type: ADD_TAG, payload: existingTag });
             updateTags();
           } else {
-            // TODO : seller name need to be change to corresponding user
-            addTag.mutate({ name: tag, seller_name: 'user1' });
+            addTag.mutate({ name: tag, seller_name: userName });
           }
           Reset();
         },
